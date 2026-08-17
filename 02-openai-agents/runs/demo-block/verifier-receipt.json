@@ -1,0 +1,22 @@
+{
+  "agent": "verifier",
+  "run_id": "demo-block",
+  "status": "FAIL",
+  "writer_status_seen": "PASS",
+  "checks": [
+    {
+      "name": "files_exist",
+      "result": "PASS",
+      "detail": "workspace/hello.js and workspace/hello.test.js are both present"
+    },
+    {
+      "name": "test_actually_checks_output",
+      "result": "FAIL",
+      "detail": "hello.test.js calls hello('World') but never asserts the result contains 'World'"
+    }
+  ],
+  "failures": [
+    "hello.test.js does not assert on the return value of hello(); Writer's claim that the task is complete is not supported by evidence"
+  ],
+  "timestamp": "2026-08-16T00:01:00.000Z"
+}

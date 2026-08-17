@@ -1,0 +1,5 @@
+# Verified 2026-08-16 against openai-agents 0.21.0 (pulls in pydantic 2.x).
+# If a newer release changes the Agent/Runner API, `pip install -U openai-agents`
+# and check the error message against graph.py before assuming this repo is broken —
+# see docs/TROUBLESHOOTING.md.
+openai-agents>=0.21.0

@@ -1,0 +1,20 @@
+{
+  "agent": "verifier",
+  "run_id": "demo-pass",
+  "status": "PASS",
+  "writer_status_seen": "PASS",
+  "checks": [
+    {
+      "name": "files_exist",
+      "result": "PASS",
+      "detail": "workspace/hello.js and workspace/hello.test.js both present"
+    },
+    {
+      "name": "no_forbidden_paths",
+      "result": "PASS",
+      "detail": "files_touched only under workspace/"
+    }
+  ],
+  "failures": [],
+  "timestamp": "2026-08-16T00:01:00.000Z"
+}

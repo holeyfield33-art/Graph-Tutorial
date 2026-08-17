@@ -1,0 +1,8 @@
+{
+  "agent": "gate",
+  "status": "BLOCK",
+  "reason": "writer or verifier reported FAIL",
+  "timestamp": "2026-08-16T09:56:14.546Z",
+  "writer_status": "PASS",
+  "verifier_status": "FAIL"
+}

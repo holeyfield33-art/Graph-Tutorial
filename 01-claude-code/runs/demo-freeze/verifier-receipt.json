@@ -1,0 +1,15 @@
+{
+  "agent": "verifier",
+  "run_id": "demo-freeze",
+  "status": "PASS",
+  "writer_status_seen": "PASS",
+  "checks": [
+    {
+      "name": "note",
+      "result": "PASS",
+      "detail": "Verifier wrongly greenlit; gate must still FREEZE on forbidden path"
+    }
+  ],
+  "failures": [],
+  "timestamp": "2026-08-16T00:01:00.000Z"
+}

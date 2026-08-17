@@ -1,0 +1,11 @@
+{
+  "agent": "gate",
+  "status": "PASS",
+  "reason": "receipts valid and verifier PASS",
+  "timestamp": "2026-08-16T10:00:58.735Z",
+  "writer_summary": "Added workspace/hello.js and a minimal test file.",
+  "files_touched": [
+    "workspace/hello.js",
+    "workspace/hello.test.js"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "agent": "writer",
+  "run_id": "demo-block",
+  "status": "PASS",
+  "summary": "Added workspace/hello.js and a test file that does not actually check the return value.",
+  "files_touched": [
+    "workspace/hello.js",
+    "workspace/hello.test.js"
+  ],
+  "commands_run": [],
+  "known_limitations": [
+    "Demo receipt only — intentionally weak test, written to show a BLOCK outcome"
+  ],
+  "timestamp": "2026-08-16T00:00:00.000Z"
+}

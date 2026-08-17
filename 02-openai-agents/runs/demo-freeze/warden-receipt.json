@@ -1,0 +1,7 @@
+{
+  "agent": "gate",
+  "status": "FREEZE",
+  "reason": "forbidden path in writer files_touched",
+  "timestamp": "2026-08-16T10:00:58.856Z",
+  "path": "scripts/gate.js"
+}
