@@ -1,5 +1,10 @@
 # Verified 2026-08-16 against openai-agents 0.21.0 (pulls in pydantic 2.x).
-# If a newer release changes the Agent/Runner API, `pip install -U openai-agents`
-# and check the error message against graph.py before assuming this repo is broken —
-# see docs/TROUBLESHOOTING.md.
-openai-agents>=0.21.0
+#
+# Pinned to the 0.21.x line: the Agent/Runner/function_tool API in graph.py is
+# what 0.21 exposes. A newer minor can rename or move it, which would break the
+# tutorial for a beginner with no way to tell the repo apart from their own
+# mistake. To move forward deliberately: bump the ceiling, run
+#   python graph.py --run-id smoke   # (needs OPENAI_API_KEY)
+# confirm PASS, then update this pin and the "Verified" date above.
+# See docs/TROUBLESHOOTING.md for the exact errors an API drift produces.
+openai-agents>=0.21.0,<0.22

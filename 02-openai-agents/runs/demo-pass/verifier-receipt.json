@@ -7,12 +7,17 @@
     {
       "name": "files_exist",
       "result": "PASS",
-      "detail": "workspace/hello.js and workspace/hello.test.js both present"
+      "detail": "read workspace/hello.js and workspace/hello.test.js from disk; both present and non-empty"
     },
     {
-      "name": "no_forbidden_paths",
+      "name": "hello_returns_greeting",
       "result": "PASS",
-      "detail": "files_touched only under workspace/"
+      "detail": "workspace/hello.js returns `Hello, ${name}!`, which includes the name argument"
+    },
+    {
+      "name": "test_asserts_output",
+      "result": "PASS",
+      "detail": "workspace/hello.test.js calls hello('World') and throws unless the result includes 'World' — a real assertion, not a no-op"
     }
   ],
   "failures": [],

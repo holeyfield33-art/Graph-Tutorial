@@ -7,9 +7,11 @@
     "workspace/hello.js",
     "workspace/hello.test.js"
   ],
-  "commands_run": [],
+  "commands_run": [
+    { "command": "node workspace/hello.test.js", "exit_code": 0 }
+  ],
   "known_limitations": [
-    "Demo receipt only — intentionally weak test, written to show a BLOCK outcome"
+    "Test does not assert on hello()'s output — included on purpose to demonstrate a BLOCK"
   ],
   "timestamp": "2026-08-16T00:00:00.000Z"
 }

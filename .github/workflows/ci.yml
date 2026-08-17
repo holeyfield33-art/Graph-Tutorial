@@ -1,0 +1,37 @@
+name: ci
+
+# Offline smoke tests only — no API key, no network calls, no paid model runs.
+# This is the early-warning system the audit asked for: if the gate's behavior
+# or the receipt shape drifts, this goes red before a learner ever hits it.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  gate:
+    name: gate + receipts (offline)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Gate exit-code tests
+        run: node tests/gate.test.js
+
+      - name: Receipt schema tests
+        run: node tests/schema.test.js
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Receipt writer self-test (no API key)
+        run: python3 02-openai-agents/receipts.py

@@ -2,16 +2,14 @@
   "agent": "writer",
   "run_id": "demo-pass",
   "status": "PASS",
-  "summary": "Added workspace/hello.js and a minimal test file.",
+  "summary": "Added workspace/hello.js and a real test that asserts on the return value.",
   "files_touched": [
     "workspace/hello.js",
     "workspace/hello.test.js"
   ],
   "commands_run": [
-    { "command": "node -e \"console.log('ok')\"", "exit_code": 0 }
+    { "command": "node workspace/hello.test.js", "exit_code": 0 }
   ],
-  "known_limitations": [
-    "Demo receipt only — files may not exist until you run Prompt A"
-  ],
+  "known_limitations": [],
   "timestamp": "2026-08-16T00:00:00.000Z"
 }
