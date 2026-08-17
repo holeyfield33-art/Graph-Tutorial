@@ -14,7 +14,9 @@ Attack and check the Writer’s work. You do **not** trust the Writer’s summar
 ## Procedure
 
 1. Read `runs/<run_id>/writer-receipt.json`.
-2. Confirm every path in `files_touched` exists and matches the claim.
+2. Confirm every path in `files_touched` (relative to `runs/<run_id>/`, e.g.
+   `workspace/hello.js` → `runs/<run_id>/workspace/hello.js`) exists and matches
+   the claim.
 3. Re-run or spot-check commands when possible.
 4. Look for: empty files, missing required strings, paths outside the allowed area, contradictory claims.
 5. Write `runs/<run_id>/verifier-receipt.json`.

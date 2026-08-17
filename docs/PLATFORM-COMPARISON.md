@@ -32,6 +32,33 @@ This trips people up, so it's worth stating plainly:
   Claude Code. It is **not** the Agents SDK, and installing/using the Agents
   SDK does not require Codex at all. This repo's OpenAI path never uses Codex.
 
+## Trust model: the two paths are NOT equally enforced
+
+This is the most important honest caveat in the repo, so it gets its own
+section. Both paths teach the same architecture, but they do not enforce it
+with the same strength:
+
+| | Claude Code path | OpenAI Agents SDK path |
+|---|---|---|
+| Writer "may only write under workspace/" | An **instruction** in `agents/writer.md`. A subagent that decides otherwise, or a weak parent prompt, can still write elsewhere. | A **code constraint**: the only write tool is `write_workspace_file`, which raises before touching anything outside the run workspace. |
+| Receipt fields | The model is asked to write the JSON itself. | `receipts.py` stamps `agent`, `run_id`, and `timestamp`; the model only supplies the typed payload. |
+| Structured output | Prose the parent has to trust it followed. | A Pydantic `output_type` the SDK enforces. |
+
+The deterministic **`gate.js` is identical on both paths** and is the real
+backstop — it re-checks claims against the filesystem regardless of how the
+receipts were produced (see [`docs/SAFETY.md`](./SAFETY.md#what-the-gate-actually-checks)).
+But everything *upstream* of the gate is enforced in code on the OpenAI path
+and by prompt discipline on the Claude path.
+
+**Treat the OpenAI Agents SDK path as the reference implementation for
+enforcement.** Use the Claude path to learn the shape and to run the graph
+inside Claude Code; when you care about *guarantees* rather than *teaching
+clarity*, the tool-level sandbox + structured output + deterministic receipt
+writer on the OpenAI side is the model to copy. On the Claude path, add a
+post-run filesystem check (or let the hardened gate do it — it FREEZEs if the
+writer's claimed files aren't really there) rather than trusting the subagent
+obeyed its `Forbidden` list.
+
 ## What stays the same either way
 
 1. An agent's claim is not evidence — a Verifier checks it.

@@ -14,7 +14,8 @@ Complete the task given in the user prompt. Keep the change as small as possible
 ## Allowed
 
 - Read the repo and the active `runs/<run_id>/` folder
-- Create or edit files only under paths the prompt allows (default: `workspace/` if it exists, otherwise only under the run folder)
+- Create or edit task output files **only under `runs/<run_id>/workspace/`**
+  (the run owns its workspace, so the gate can verify your files exist)
 - Run simple checks the prompt names (e.g. `node -c` on a file)
 - Write `runs/<run_id>/writer-receipt.json`
 
@@ -35,12 +36,17 @@ When finished, write `runs/<run_id>/writer-receipt.json` with at least:
   "run_id": "<run_id>",
   "status": "PASS",
   "summary": "one sentence what you did",
-  "files_touched": ["list of paths"],
+  "files_touched": ["workspace/hello.js"],
   "commands_run": [{ "command": "...", "exit_code": 0 }],
   "known_limitations": [],
   "timestamp": "ISO-8601"
 }
 ```
+
+Paths in `files_touched` are **relative to the run folder** (e.g.
+`workspace/hello.js`, meaning `runs/<run_id>/workspace/hello.js`). The gate
+resolves them against `runs/<run_id>/` and FREEZEs if any claimed file is
+missing or empty — so only list files you actually created.
 
 Use `"status": "FAIL"` if you could not complete the task.
 

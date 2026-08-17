@@ -13,7 +13,8 @@ OpenAI account with API access (this uses the API, billed per token — see
 
 **What is happening?** Two OpenAI Agents SDK `Agent`s run one after another —
 `writer`, then `verifier` — each backed by a real LLM call. The writer has exactly
-one tool, restricted to writing files under `workspace/`. The verifier has two
+one tool, restricted to writing files under the run's own
+`runs/<run_id>/workspace/`. The verifier has two
 read-only tools and is never shown the writer's summary as ground truth — it has
 to re-read the files itself. Both agents return a structured, typed answer
 (a Pydantic model), and plain Python code — not the model — turns that answer into
@@ -192,6 +193,6 @@ concept-by-concept table against the Claude path.
 | `graph.py` | The runnable release graph: writer agent → verifier agent → `gate.js` |
 | `graph_parallel.py` | A runnable fan-out/join graph: 3 concurrent Worker calls → plain-code join |
 | `receipts.py` | Deterministic, network-free receipt-writing (run `python receipts.py` for a self-test) |
-| `requirements.txt` | Pinned SDK dependency |
-| `workspace/` | Where the writer agent is allowed to create files |
-| `runs/demo-{pass,freeze,block}/` | Static fixtures — exercise `gate.js` with zero API cost |
+| `requirements.txt` | Pinned SDK dependency (0.21.x) |
+| `runs/<run_id>/workspace/` | Where each run's writer agent creates its files (one workspace per run) |
+| `runs/demo-{pass,freeze,block}/` | Static fixtures with real files — exercise `gate.js` with zero API cost |
