@@ -44,6 +44,8 @@ fans out to many agents from surprising you.
 
 ## What the gate actually checks
 
+![How the gate decides, top to bottom: the first failing check wins. Invalid receipts, identity mismatch, forbidden paths, or claimed files missing from disk cause FREEZE; a FAIL status or an empty verifier causes BLOCK; otherwise PASS.](./img/gate-decision.svg)
+
 The gate is the one node that does not trust any model. Before it will emit
 **PASS**, `scripts/gate.js` re-derives the facts from disk — it never takes the
 receipt's self-reported `status` at face value:

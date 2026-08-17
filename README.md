@@ -45,6 +45,11 @@ with a real, runnable 3-node graph as the central example — on Claude Code
 
 ## What you will build
 
+![The 3-node release graph: Writer → Verifier → Gate, which emits PASS, BLOCK, or FREEZE. Models propose; a deterministic script owns the release decision.](docs/img/graph-overview.svg)
+
+<details>
+<summary>Same graph as plain text (for screen readers / terminals)</summary>
+
 ```text
         ┌─────────────┐
         │   Writer    │  (Agent 1 — does the work)
@@ -63,6 +68,8 @@ with a real, runnable 3-node graph as the central example — on Claude Code
      PASS ─────┼───── BLOCK ───── FREEZE
    (ok to ship)   (rework)     (hard stop)
 ```
+
+</details>
 
 **Rule that matters:** only the script decides release. Agents write receipts. They never promote themselves.
 
