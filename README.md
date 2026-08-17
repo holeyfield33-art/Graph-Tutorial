@@ -199,6 +199,7 @@ Frontier platforms (Claude subagents + workflows, OpenAI Agents SDK) are the **r
 | `docs/ROADMAP.md` | Path to 5+ agents + MCP memory bank |
 | `docs/SAFETY.md` | Cost numbers, what the gate checks, prompt-injection, permissions |
 | `SECURITY.md` | How to report a gate bypass or unsafe-habit concern |
+| `docs/VIDEO-SHOT-LIST.md` | 5 short screen-recording clips (commands + captions) if you want to add video |
 
 ---
 
