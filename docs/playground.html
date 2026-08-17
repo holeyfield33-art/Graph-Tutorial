@@ -1,0 +1,496 @@
+<title>Release Gate Playground</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#e9edf3; --panel:#ffffff; --panel-2:#f4f6fa; --sunk:#eef1f6;
+    --ink:#10151d; --ink-soft:#48515e; --ink-faint:#8a93a1;
+    --line:#dbe1ea; --line-strong:#c3ccd8;
+    --accent:#4f46e5; --accent-ink:#4f46e5; --accent-soft:rgba(79,70,229,.10);
+    --pass:#15803d; --pass-bg:#dcfce7; --pass-line:#86efac;
+    --block:#b45309; --block-bg:#fef3c7; --block-line:#fcd34d;
+    --freeze:#b91c1c; --freeze-bg:#fee2e2; --freeze-line:#fca5a5;
+    --shadow:0 1px 2px rgba(16,21,29,.04),0 8px 24px rgba(16,21,29,.06);
+  }
+  :root:not([data-theme="light"]){ }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#080b11; --panel:#121822; --panel-2:#0e141d; --sunk:#0b1017;
+      --ink:#e7ecf3; --ink-soft:#9aa4b2; --ink-faint:#616b78;
+      --line:#212a37; --line-strong:#2c3746;
+      --accent:#7c83ff; --accent-ink:#a5abff; --accent-soft:rgba(124,131,255,.14);
+      --pass:#4ade80; --pass-bg:rgba(21,128,61,.20); --pass-line:rgba(74,222,128,.4);
+      --block:#fbbf24; --block-bg:rgba(180,83,9,.22); --block-line:rgba(251,191,36,.4);
+      --freeze:#f87171; --freeze-bg:rgba(185,28,28,.24); --freeze-line:rgba(248,113,113,.42);
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#080b11; --panel:#121822; --panel-2:#0e141d; --sunk:#0b1017;
+    --ink:#e7ecf3; --ink-soft:#9aa4b2; --ink-faint:#616b78;
+    --line:#212a37; --line-strong:#2c3746;
+    --accent:#7c83ff; --accent-ink:#a5abff; --accent-soft:rgba(124,131,255,.14);
+    --pass:#4ade80; --pass-bg:rgba(21,128,61,.20); --pass-line:rgba(74,222,128,.4);
+    --block:#fbbf24; --block-bg:rgba(180,83,9,.22); --block-line:rgba(251,191,36,.4);
+    --freeze:#f87171; --freeze-bg:rgba(185,28,28,.24); --freeze-line:rgba(248,113,113,.42);
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    line-height:1.5; letter-spacing:-.005em;
+  }
+  .wrap{max-width:1140px; margin:0 auto; padding:clamp(18px,3vw,40px)}
+  .mono{font-family:"IBM Plex Mono","SF Mono",ui-monospace,Menlo,monospace}
+
+  /* header */
+  header.top{display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap}
+  .eyebrow{font-size:11.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--accent-ink)}
+  h1{font-size:clamp(26px,4.3vw,40px); line-height:1.04; margin:.28em 0 .18em; font-weight:700; text-wrap:balance; letter-spacing:-.02em}
+  .lede{color:var(--ink-soft); font-size:clamp(14.5px,1.7vw,16.5px); max-width:60ch; margin:0}
+  .themebtn{
+    flex:none; font:inherit; font-size:13px; font-weight:500; color:var(--ink-soft);
+    background:var(--panel); border:1px solid var(--line); border-radius:999px;
+    padding:8px 14px; cursor:pointer; display:inline-flex; gap:7px; align-items:center;
+  }
+  .themebtn:hover{border-color:var(--line-strong); color:var(--ink)}
+
+  /* scenario selector */
+  .scenarios{display:flex; gap:10px; flex-wrap:wrap; margin:26px 0 6px}
+  .scn{
+    flex:1 1 210px; text-align:left; cursor:pointer; font:inherit;
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:13px 15px; display:flex; flex-direction:column; gap:3px; color:var(--ink);
+    transition:border-color .15s, box-shadow .15s, transform .1s;
+  }
+  .scn:hover{border-color:var(--line-strong)}
+  .scn[aria-pressed="true"]{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent), var(--shadow)}
+  .scn .k{display:flex; align-items:center; gap:8px; font-weight:600; font-size:14.5px}
+  .scn .d{font-size:12.5px; color:var(--ink-faint); line-height:1.35}
+  .verdict-dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .dot-pass{background:var(--pass)} .dot-block{background:var(--block)} .dot-freeze{background:var(--freeze)}
+
+  /* transport */
+  .transport{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:16px 0 22px;
+    background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:12px 14px}
+  .btn{font:inherit; font-size:13.5px; font-weight:600; cursor:pointer; border-radius:10px;
+    border:1px solid var(--line-strong); background:var(--panel-2); color:var(--ink); padding:9px 15px;
+    display:inline-flex; gap:7px; align-items:center}
+  .btn:hover{border-color:var(--accent); color:var(--accent-ink)}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+  .btn.primary:hover{filter:brightness(1.06); color:#fff}
+  .btn:disabled{opacity:.4; cursor:not-allowed; border-color:var(--line); color:var(--ink-faint)}
+  .steps{display:flex; gap:6px; margin-left:auto; flex-wrap:wrap}
+  .steppill{font-size:11.5px; font-weight:600; letter-spacing:.03em; padding:5px 11px; border-radius:999px;
+    background:var(--sunk); color:var(--ink-faint); border:1px solid transparent}
+  .steppill.active{background:var(--accent-soft); color:var(--accent-ink); border-color:var(--accent)}
+  .steppill.done{color:var(--ink-soft)}
+
+  /* main grid */
+  .grid{display:grid; grid-template-columns:1.05fr .95fr; gap:16px}
+  @media (max-width:860px){ .grid{grid-template-columns:1fr} }
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow)}
+  .card > .hd{padding:14px 18px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:9px}
+  .hd h2{margin:0; font-size:13px; font-weight:600; letter-spacing:.02em; text-transform:uppercase; color:var(--ink-soft)}
+  .hd .tag{margin-left:auto; font-size:11px; font-weight:600; color:var(--ink-faint)}
+
+  /* graph nodes */
+  .graph{padding:18px; display:flex; flex-direction:column; gap:0}
+  .node{border:1.5px solid var(--line-strong); border-radius:13px; background:var(--panel-2);
+    padding:13px 15px; cursor:pointer; position:relative; opacity:.5; transition:opacity .3s, border-color .3s, box-shadow .3s, background .3s}
+  .node.on{opacity:1}
+  .node.active{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); background:var(--panel)}
+  .node.sel{border-color:var(--accent)}
+  .node .role{font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint)}
+  .node .name{font-weight:600; font-size:16px; display:flex; align-items:center; gap:9px; margin-top:1px}
+  .node .sub{font-size:12.5px; color:var(--ink-faint); margin-top:2px}
+  .node .badge{margin-left:auto; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; font-family:"IBM Plex Mono",monospace}
+  .b-run{background:var(--accent-soft); color:var(--accent-ink)}
+  .b-pass{background:var(--pass-bg); color:var(--pass)}
+  .b-fail{background:var(--block-bg); color:var(--block)}
+  .b-freeze{background:var(--freeze-bg); color:var(--freeze)}
+  .edge{height:26px; margin-left:26px; border-left:2px dashed var(--line-strong); position:relative}
+  .edge span{position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:11px; color:var(--ink-faint); font-family:"IBM Plex Mono",monospace; white-space:nowrap}
+  .node.gate{border-style:solid}
+  .node.gate .name svg{color:var(--ink-soft)}
+
+  .trust{margin-top:14px; display:flex; gap:10px; align-items:center; font-size:11.5px; color:var(--ink-faint)}
+  .trust b{color:var(--ink-soft); font-weight:600}
+  .trust .sep{flex:1; height:1px; background:var(--line)}
+
+  /* verdict */
+  .verdict{margin:16px 18px 20px; border-radius:14px; padding:16px 18px; border:1.5px solid var(--line);
+    display:flex; align-items:center; gap:14px; opacity:.4; transition:opacity .3s}
+  .verdict.show{opacity:1}
+  .verdict.v-pass{background:var(--pass-bg); border-color:var(--pass-line)}
+  .verdict.v-block{background:var(--block-bg); border-color:var(--block-line)}
+  .verdict.v-freeze{background:var(--freeze-bg); border-color:var(--freeze-line)}
+  .verdict .code{font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:30px; line-height:1}
+  .v-pass .code,.v-pass .lbl{color:var(--pass)} .v-block .code,.v-block .lbl{color:var(--block)} .v-freeze .code,.v-freeze .lbl{color:var(--freeze)}
+  .verdict .lbl{font-weight:700; font-size:18px}
+  .verdict .why{font-size:12.5px; color:var(--ink-soft); margin-top:2px}
+  .verdict.idle{color:var(--ink-faint); justify-content:center; font-size:13px}
+
+  /* right column: console + receipts */
+  .console{padding:14px 16px 18px}
+  .check{display:flex; gap:11px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--line); opacity:.35; transition:opacity .25s}
+  .check:last-child{border-bottom:0}
+  .check.eval{opacity:1}
+  .ci{width:20px;height:20px;border-radius:6px;flex:none;display:grid;place-items:center;font-size:12px;font-weight:700;margin-top:1px;
+    background:var(--sunk); color:var(--ink-faint); font-family:"IBM Plex Mono",monospace}
+  .check.ok .ci{background:var(--pass-bg); color:var(--pass)}
+  .check.bad-freeze .ci{background:var(--freeze-bg); color:var(--freeze)}
+  .check.bad-block .ci{background:var(--block-bg); color:var(--block)}
+  .check .ctext{font-size:13.5px}
+  .check .cnote{font-size:12px; color:var(--ink-faint); margin-top:1px; font-family:"IBM Plex Mono",monospace}
+  .check.skip .ctext{color:var(--ink-faint)}
+  .check.bad-freeze .ctext,.check.bad-block .ctext{font-weight:600}
+
+  .receipts{padding:14px 16px 18px}
+  .rtabs{display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap}
+  .rtab{font:inherit; font-size:12px; font-weight:600; cursor:pointer; border:1px solid var(--line); background:var(--panel-2);
+    color:var(--ink-soft); padding:6px 11px; border-radius:8px; font-family:"IBM Plex Mono",monospace}
+  .rtab[aria-pressed="true"]{border-color:var(--accent); color:var(--accent-ink); background:var(--accent-soft)}
+  .rtab:disabled{opacity:.4; cursor:not-allowed}
+  pre.receipt{margin:0; background:var(--sunk); border:1px solid var(--line); border-radius:11px; padding:14px;
+    font-family:"IBM Plex Mono",monospace; font-size:12.5px; line-height:1.55; overflow-x:auto; color:var(--ink);
+    max-height:340px; overflow-y:auto}
+  pre.receipt .warden{color:var(--ink-soft)}
+  .tok-key{color:var(--accent-ink)} .tok-str{color:var(--ink)} .tok-pass{color:var(--pass); font-weight:600}
+  .tok-fail{color:var(--block); font-weight:600} .tok-freeze{color:var(--freeze); font-weight:600}
+  .receipt .muted{color:var(--ink-faint)}
+  .rnote{font-size:11.5px; color:var(--ink-faint); margin-top:9px; line-height:1.4}
+
+  footer{margin-top:26px; padding-top:18px; border-top:1px solid var(--line); color:var(--ink-faint); font-size:12.5px; line-height:1.5}
+  footer a{color:var(--accent-ink)}
+  .kbd{font-family:"IBM Plex Mono",monospace; font-size:11px; background:var(--sunk); border:1px solid var(--line); border-radius:5px; padding:1px 6px; color:var(--ink-soft)}
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">agent-graph-starter · interactive</div>
+      <h1>Release Gate Playground</h1>
+      <p class="lede">Watch a run move through a three-node agent graph — Writer, Verifier, and a deterministic Gate that reads the receipts <em>and the real files</em> before it decides. Pick a scenario and step it.</p>
+    </div>
+    <button class="themebtn" id="theme" aria-label="Toggle colour theme">◐ Theme</button>
+  </header>
+
+  <div class="scenarios" id="scenarios" role="group" aria-label="Choose a scenario"></div>
+
+  <div class="transport">
+    <button class="btn primary" id="run">▶ Run</button>
+    <button class="btn" id="prev" disabled>◀ Step</button>
+    <button class="btn" id="next">Step ▶</button>
+    <button class="btn" id="reset">↺ Reset</button>
+    <div class="steps" id="steps"></div>
+  </div>
+
+  <div class="grid">
+    <!-- LEFT: graph -->
+    <section class="card">
+      <div class="hd"><h2>The graph</h2><span class="tag mono" id="runid">runs/—</span></div>
+      <div class="graph">
+        <div class="node" id="n-writer" data-node="writer" tabindex="0" role="button" aria-label="Writer node">
+          <div class="role">Agent 1 · untrusted</div>
+          <div class="name">Writer <span class="badge" id="bw" hidden></span></div>
+          <div class="sub">does the work, writes a receipt</div>
+        </div>
+        <div class="edge"><span>receipt + files →</span></div>
+        <div class="node" id="n-verifier" data-node="verifier" tabindex="0" role="button" aria-label="Verifier node">
+          <div class="role">Agent 2 · untrusted</div>
+          <div class="name">Verifier <span class="badge" id="bv" hidden></span></div>
+          <div class="sub">re-reads the files, attacks the claims</div>
+        </div>
+        <div class="edge"><span>verifier receipt →</span></div>
+        <div class="node gate" id="n-gate" data-node="gate" tabindex="0" role="button" aria-label="Gate node">
+          <div class="role">Deterministic · trusted</div>
+          <div class="name">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 4.4-3 7.7-7 9-4-1.3-7-4.6-7-9V7z"/></svg>
+            Gate · gate.js <span class="badge" id="bg" hidden></span>
+          </div>
+          <div class="sub">a script, not an LLM — checks disk itself</div>
+        </div>
+        <div class="trust"><b>models propose</b><span class="sep"></span><b>the script decides</b></div>
+      </div>
+      <div class="verdict idle" id="verdict">Run a scenario to see the gate's decision.</div>
+    </section>
+
+    <!-- RIGHT: console + receipts -->
+    <div style="display:flex; flex-direction:column; gap:16px">
+      <section class="card">
+        <div class="hd"><h2>Gate console</h2><span class="tag">first failure wins</span></div>
+        <div class="console" id="console"></div>
+      </section>
+      <section class="card">
+        <div class="hd"><h2>Receipts on disk</h2><span class="tag mono">runs/&lt;id&gt;/</span></div>
+        <div class="receipts">
+          <div class="rtabs" id="rtabs"></div>
+          <pre class="receipt" id="receipt" aria-live="polite"></pre>
+          <p class="rnote" id="rnote"></p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    This playground mirrors the real <span class="mono">scripts/gate.js</span> from the
+    <strong>agent-graph-starter</strong> course — same ordered checks, same three exit codes
+    (<span class="mono">0 PASS · 1 BLOCK · 2 FREEZE</span>). The receipts shown are the actual
+    shape written to <span class="mono">runs/&lt;id&gt;/</span>. Keys: <span class="kbd">R</span> run ·
+    <span class="kbd">→</span> step · <span class="kbd">1–4</span> scenario.
+  </footer>
+</div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+// ---- Scenario data. Each carries the receipts and what's actually on disk,
+// so the gate logic below runs for real against it (not a canned verdict). ----
+const SCEN = {
+  pass: {
+    label:"PASS", dot:"dot-pass", desc:"Clean run: real files, an honest verifier.",
+    runid:"demo-pass",
+    writer:{agent:"writer",run_id:"demo-pass",status:"PASS",summary:"Added workspace/hello.js and a real test that asserts on the return value.",files_touched:["workspace/hello.js","workspace/hello.test.js"],known_limitations:[]},
+    verifier:{agent:"verifier",run_id:"demo-pass",status:"PASS",writer_status_seen:"PASS",checks:[
+      {name:"files_exist",result:"PASS",detail:"read both files from disk; present and non-empty"},
+      {name:"test_asserts_output",result:"PASS",detail:"hello.test.js throws unless result includes 'World'"}],failures:[]},
+    disk:{"workspace/hello.js":74,"workspace/hello.test.js":121}
+  },
+  block: {
+    label:"BLOCK", dot:"dot-block", desc:"Files exist, but the verifier found a weak test.",
+    runid:"demo-block",
+    writer:{agent:"writer",run_id:"demo-block",status:"PASS",summary:"Added hello.js and a test file that does not check the return value.",files_touched:["workspace/hello.js","workspace/hello.test.js"],known_limitations:["Test does not assert on output — on purpose"]},
+    verifier:{agent:"verifier",run_id:"demo-block",status:"FAIL",writer_status_seen:"PASS",checks:[
+      {name:"files_exist",result:"PASS",detail:"both files present and non-empty"},
+      {name:"test_actually_checks_output",result:"FAIL",detail:"calls hello('World') but never asserts — would pass on wrong output"}],
+      failures:["hello.test.js does not assert on the return value; the completion claim is unsupported"]},
+    disk:{"workspace/hello.js":74,"workspace/hello.test.js":96}
+  },
+  freeze_forbidden: {
+    label:"FREEZE", dot:"dot-freeze", desc:"Writer claims it touched the gate itself.",
+    runid:"demo-freeze",
+    writer:{agent:"writer",run_id:"demo-freeze",status:"PASS",summary:"Pretended to edit the gate (this must FREEZE).",files_touched:["scripts/gate.js"],known_limitations:["Intentional bad receipt"]},
+    verifier:{agent:"verifier",run_id:"demo-freeze",status:"PASS",writer_status_seen:"PASS",checks:[
+      {name:"note",result:"PASS",detail:"Verifier wrongly greenlit; gate must FREEZE anyway"}],failures:[]},
+    disk:{}
+  },
+  freeze_missing: {
+    label:"FREEZE", dot:"dot-freeze", desc:"Both receipts say PASS — but the file isn't there.",
+    runid:"demo-ghost",
+    writer:{agent:"writer",run_id:"demo-ghost",status:"PASS",summary:"Claims a file it never actually wrote.",files_touched:["workspace/ghost.js"],known_limitations:[]},
+    verifier:{agent:"verifier",run_id:"demo-ghost",status:"PASS",writer_status_seen:"PASS",checks:[
+      {name:"rubber_stamp",result:"PASS",detail:"trusted the writer's summary — the mistake the gate catches"}],failures:[]},
+    disk:{}
+  }
+};
+const ORDER = ["pass","block","freeze_forbidden","freeze_missing"];
+const FORBIDDEN = ["scripts",".claude","agents","node_modules",".git"];
+
+// ---- The gate, faithful to scripts/gate.js: ordered checks, first failure wins. ----
+function evalGate(s){
+  const w=s.writer, v=s.verifier, disk=s.disk, runId=s.runid;
+  const checks=[];
+  const seg = p => String(p).replace(/\\/g,"/").split("/").filter(Boolean);
+  checks.push({label:"Receipts present & valid JSON", ok:true, note:"writer + verifier receipts parsed"});
+  const idOk = w.agent==="writer" && v.agent==="verifier" && w.run_id===runId && v.run_id===runId;
+  checks.push({label:"Identity & run_id match the run", ok:idOk, kind:"FREEZE",
+    note:idOk?`agent + run_id = ${runId}`:"mismatch"});
+  const forbidden=(w.files_touched||[]).find(p=>seg(p).some(x=>FORBIDDEN.includes(x)) || seg(p).includes("..") );
+  checks.push({label:"No forbidden path / no escape", ok:!forbidden, kind:"FREEZE",
+    note:forbidden?`forbidden: ${forbidden}`:"all under workspace/"});
+  const missing=(w.files_touched||[]).filter(p=>!disk[p] || disk[p]===0);
+  const filesOk = missing.length===0;
+  checks.push({label:"Every claimed file exists & non-empty on disk", ok:filesOk, kind:"FREEZE", star:true,
+    note:filesOk?`verified ${w.files_touched.length} file(s) on disk`:`missing on disk: ${missing.join(", ")}`});
+  const statusOk = w.status==="PASS" && v.status==="PASS";
+  checks.push({label:"Writer & Verifier status both PASS", ok:statusOk, kind:"BLOCK",
+    note:statusOk?"both PASS":`writer=${w.status} verifier=${v.status}`});
+  const hasChecks=Array.isArray(v.checks)&&v.checks.length>0;
+  checks.push({label:"Verifier recorded real checks", ok:hasChecks, kind:"BLOCK",
+    note:hasChecks?`${v.checks.length} check(s)`:"zero checks — rubber stamp"});
+  // first failure wins
+  let verdict="PASS", reason="receipts valid, claimed files exist, verifier PASS", tripped=-1;
+  for(let i=0;i<checks.length;i++){ if(!checks[i].ok){ verdict=checks[i].kind; reason=checks[i].note; tripped=i; break; } }
+  return {checks, verdict, reason, tripped};
+}
+
+// ---- State ----
+let current="pass", step=0, timer=null, selNode=null, rtab="writer";
+const STEP_NAMES=["Writer","Verifier","Gate","Verdict"];
+
+function buildScenarios(){
+  const el=$("#scenarios");
+  el.innerHTML="";
+  ORDER.forEach((k,i)=>{
+    const s=SCEN[k];
+    const b=document.createElement("button");
+    b.className="scn"; b.setAttribute("aria-pressed", k===current);
+    b.innerHTML=`<span class="k"><span class="verdict-dot ${s.dot}"></span>${i+1}. ${s.label}${k.startsWith("freeze")?" · "+(k==="freeze_missing"?"ghost file":"forbidden path"):""}</span><span class="d">${s.desc}</span>`;
+    b.onclick=()=>{ current=k; reset(); };
+    el.appendChild(b);
+  });
+}
+function buildSteps(){
+  const el=$("#steps"); el.innerHTML="";
+  STEP_NAMES.forEach((n,i)=>{
+    const p=document.createElement("span");
+    p.className="steppill"+(i===step?" active":"")+(i<step?" done":"");
+    p.textContent=n; el.appendChild(p);
+  });
+}
+
+function fmtReceipt(obj, isWarden){
+  const j=JSON.stringify(obj,null,2);
+  return j.replace(/("(?:[^"\\]|\\.)*")(\s*:)?/g,(m,str,colon)=>{
+    if(colon) return `<span class="tok-key">${str}</span>${colon}`;
+    const bare=str.slice(1,-1);
+    if(bare==="PASS") return `<span class="tok-pass">${str}</span>`;
+    if(bare==="FAIL") return `<span class="tok-fail">${str}</span>`;
+    if(bare==="FREEZE") return `<span class="tok-freeze">${str}</span>`;
+    if(bare==="BLOCK") return `<span class="tok-fail">${str}</span>`;
+    return `<span class="tok-str">${str}</span>`;
+  });
+}
+
+function render(){
+  const s=SCEN[current];
+  const res=evalGate(s);
+  $("#runid").textContent="runs/"+s.runid;
+  buildSteps();
+  // scenario pressed state
+  [...document.querySelectorAll(".scn")].forEach((b,i)=>b.setAttribute("aria-pressed", ORDER[i]===current));
+
+  // nodes reveal by step
+  const nW=$("#n-writer"), nV=$("#n-verifier"), nG=$("#n-gate");
+  [nW,nV,nG].forEach(n=>n.classList.remove("on","active","sel"));
+  const bw=$("#bw"),bv=$("#bv"),bg=$("#bg"); [bw,bv,bg].forEach(b=>b.hidden=true);
+
+  if(step>=1){ nW.classList.add("on"); bw.hidden=false; bw.className="badge "+(s.writer.status==="PASS"?"b-pass":"b-fail"); bw.textContent=s.writer.status; }
+  if(step===0){ nW.classList.add("active"); bw.hidden=false; bw.className="badge b-run"; bw.textContent="running…"; nW.classList.add("on"); }
+  if(step>=2){ nV.classList.add("on"); bv.hidden=false; bv.className="badge "+(s.verifier.status==="PASS"?"b-pass":"b-fail"); bv.textContent=s.verifier.status; }
+  if(step===1){ nV.classList.add("active","on"); bv.hidden=false; bv.className="badge b-run"; bv.textContent="checking…"; }
+  if(step>=3){
+    nG.classList.add("on");
+    bg.hidden=false;
+    bg.className="badge "+(res.verdict==="PASS"?"b-pass":res.verdict==="BLOCK"?"b-fail":"b-freeze");
+    bg.textContent=res.verdict;
+  }
+  if(step===2){ nG.classList.add("active","on"); bg.hidden=false; bg.className="badge b-run"; bg.textContent="deciding…"; }
+  if(selNode){ const map={writer:nW,verifier:nV,gate:nG}; map[selNode]&&map[selNode].classList.add("sel"); }
+
+  // console: reveal checks once gate is evaluating (step>=2)
+  const con=$("#console"); con.innerHTML="";
+  res.checks.forEach((c,i)=>{
+    const reached = res.tripped===-1 ? true : i<=res.tripped;
+    const row=document.createElement("div");
+    let cls="check";
+    if(step>=2){
+      cls+=" eval";
+      if(!reached){ cls+=" skip"; }
+      else if(c.ok){ cls+=" ok"; }
+      else { cls+= c.kind==="FREEZE"?" bad-freeze":" bad-block"; }
+    }
+    row.className=cls;
+    const icon = step<2 ? (i+1) : (!reached?"·":(c.ok?"✓":(c.kind==="FREEZE"?"■":"▲")));
+    row.innerHTML=`<span class="ci">${icon}</span><div><div class="ctext">${c.star?"★ ":""}${c.label}</div>${step>=2&&reached?`<div class="cnote">${c.note}</div>`:""}</div>`;
+    con.appendChild(row);
+  });
+
+  // verdict
+  const vd=$("#verdict");
+  vd.className="verdict";
+  if(step>=3){
+    const cls=res.verdict==="PASS"?"v-pass":res.verdict==="BLOCK"?"v-block":"v-freeze";
+    const code=res.verdict==="PASS"?"0":res.verdict==="BLOCK"?"1":"2";
+    vd.classList.add(cls,"show");
+    vd.innerHTML=`<span class="code">${code}</span><div><div class="lbl">${res.verdict}</div><div class="why">${res.reason}</div></div>`;
+  } else {
+    vd.classList.add("idle");
+    vd.textContent = step===0?"Writer is producing its receipt…" : step===1?"Verifier is re-checking the files…" : "Gate is evaluating the checks…";
+  }
+
+  // receipts tabs
+  buildReceiptTabs(res);
+  drawReceipt(res);
+
+  $("#prev").disabled = step<=0;
+  $("#next").disabled = step>=3;
+  $("#run").textContent = step>=3 ? "↺ Again" : "▶ Run";
+}
+
+function buildReceiptTabs(res){
+  const el=$("#rtabs"); el.innerHTML="";
+  const tabs=[["writer","writer-receipt.json",1],["verifier","verifier-receipt.json",2],["warden","warden-receipt.json",3]];
+  tabs.forEach(([k,label,need])=>{
+    const b=document.createElement("button");
+    b.className="rtab"; b.textContent=label; b.disabled=step<need;
+    b.setAttribute("aria-pressed", rtab===k);
+    if(step<need && rtab===k) rtab = step>=2?"verifier":"writer";
+    b.onclick=()=>{ rtab=k; drawReceipt(res); [...el.children].forEach(c=>c.setAttribute("aria-pressed", c.textContent===label)); };
+    el.appendChild(b);
+  });
+}
+function drawReceipt(res){
+  const s=SCEN[current]; const pre=$("#receipt"); const note=$("#rnote");
+  [...$("#rtabs").children].forEach(c=>c.setAttribute("aria-pressed", (c.textContent.split("-")[0])===rtab));
+  if(rtab==="writer"){ pre.innerHTML=fmtReceipt({...s.writer,timestamp:"2026-08-16T00:00:00.000Z"});
+    note.textContent="Written by the Writer agent (untrusted). The gate does not take its status at face value."; }
+  else if(rtab==="verifier"){ pre.innerHTML=fmtReceipt({...s.verifier,timestamp:"2026-08-16T00:01:00.000Z"});
+    note.textContent="Written by the Verifier agent (untrusted). A second opinion — still not the authority."; }
+  else {
+    const code=res.verdict==="PASS"?0:res.verdict==="BLOCK"?1:2;
+    const warden={agent:"gate",status:res.verdict,reason:res.reason,exit_code:code,run_id:s.runid,timestamp:"2026-08-16T00:02:00.000Z"};
+    pre.innerHTML=fmtReceipt(warden);
+    note.textContent="Written by gate.js — the one file in the run no LLM produced. This is the record to trust.";
+  }
+}
+
+// ---- transport ----
+function stop(){ if(timer){clearTimeout(timer); timer=null;} $("#run").textContent = step>=3?"↺ Again":"▶ Run"; }
+function reset(){ stop(); step=0; selNode=null; rtab="writer"; buildScenarios(); render(); }
+function go(n){ stop(); step=Math.max(0,Math.min(3,n)); if(step>=2)rtab= step>=3?"warden":"verifier"; render(); }
+function autorun(){
+  stop(); step=0; render();
+  const advance=()=>{ if(step>=3){stop();return;} step++; if(step>=2)rtab=step>=3?"warden":"verifier"; render();
+    if(step<3) timer=setTimeout(advance, reduce?350:900); else stop(); };
+  timer=setTimeout(advance, reduce?300:750);
+}
+
+$("#run").onclick=()=>{ if(step>=3) reset(); else autorun(); };
+$("#next").onclick=()=>go(step+1);
+$("#prev").onclick=()=>go(step-1);
+$("#reset").onclick=reset;
+document.querySelectorAll(".node").forEach(n=>{
+  const act=()=>{ selNode = selNode===n.dataset.node?null:n.dataset.node;
+    if(selNode==="writer")rtab="writer"; else if(selNode==="verifier"&&step>=2)rtab="verifier"; else if(selNode==="gate"&&step>=3)rtab="warden";
+    render(); };
+  n.onclick=act; n.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){e.preventDefault();act();} };
+});
+
+// theme toggle (respects the three-state model)
+const root=document.documentElement;
+$("#theme").onclick=()=>{
+  const explicit=root.getAttribute("data-theme");
+  const dark = explicit ? explicit==="dark" : matchMedia("(prefers-color-scheme:dark)").matches;
+  root.setAttribute("data-theme", dark?"light":"dark");
+};
+// keyboard
+addEventListener("keydown",e=>{
+  if(e.target.tagName==="BUTTON")return;
+  if(e.key==="r"||e.key==="R"){autorun();}
+  else if(e.key==="ArrowRight"){go(step+1);}
+  else if(e.key==="ArrowLeft"){go(step-1);}
+  else if("1234".includes(e.key)){ current=ORDER[+e.key-1]; reset(); }
+});
+
+reset();
+</script>

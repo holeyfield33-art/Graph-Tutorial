@@ -41,6 +41,8 @@ with a real, runnable 3-node graph as the central example — on Claude Code
 
 **Start the curriculum here:** [`curriculum/00-start-here/`](./curriculum/00-start-here/README.md)
 
+**▶ Prefer to see it first?** [**Open the interactive Release Gate Playground**](https://claude.ai/code/artifact/04895bfa-9e31-4d46-bf92-9ddd1e823ab5) — pick a scenario and step a run through Writer → Verifier → Gate to watch it land on PASS, BLOCK, or FREEZE. No install. (Source: [`docs/playground.html`](./docs/playground.html) — open it locally or host it on GitHub Pages.)
+
 ---
 
 ## What you will build
