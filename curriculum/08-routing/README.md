@@ -95,8 +95,13 @@ rather than silently guessing.
 
 **Exercise — add a router.** Add a third possible result, `'FREEZE'`, with
 its own route (e.g. an `onFreeze()` that prints something and calls
-`process.exit(2)`). This is exactly the shape of the real Gate's three-way
-route — see it for real in
+`process.exit(2)`). You'll get the full explanation of what PASS/BLOCK/
+FREEZE each mean in lesson 14 — for now, the short version: PASS ships it,
+FAIL/BLOCK sends it back to try again, and FREEZE is a harder stop for when
+something more serious than "not good enough yet" happened (that's why it
+gets its own exit code, `2`, instead of reusing FAIL's route). This
+exercise is exactly the shape of the real Gate's three-way route — see it
+for real in
 [`01-claude-code/scripts/gate.js`](../../01-claude-code/scripts/gate.js).
 *Expected result:* `node example.js freeze` (after you extend the usage
 check) prints your new FREEZE route's message and exits with code 2.

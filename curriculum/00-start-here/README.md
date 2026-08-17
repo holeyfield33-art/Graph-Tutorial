@@ -55,9 +55,14 @@ Same answer — only if you're taking that path instead of Claude Code.
 ## Do I need coding experience?
 
 No, for lessons 00–03 (pure reading) and to *run* lessons 04–18 (you paste a
-command, you don't write one). Lesson 19, the capstone, asks you to modify
-some code — by then you'll have seen enough real examples to do it by
-pattern-matching, with hints and a worked solution provided.
+command, you don't write one). Lesson 19, the capstone, is a real step up —
+it asks you to write a new small script and modify an existing one, not
+just change one value in a file you're given. It's still doable without
+prior coding background, because every exercise comes with a hint and a
+worked solution you can check yourself against, and every piece of code
+you'll write closely mirrors something you've already seen run
+successfully in an earlier lesson — but budget more time and patience for
+it than for lessons 04–16.
 
 ## How long does the first exercise take?
 

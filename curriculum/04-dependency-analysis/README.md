@@ -43,16 +43,18 @@ Now ask, honestly, for every single arrow:
 In this example: no, no, and **yes**. A, B, and C each only need the user's
 ID — which was available before any of them ran. D is the only step that
 genuinely needs other steps' output; it needs all three. The honest graph
-looks like this:
+looks like this — three independent loaders, then one join:
 
 ```text
-       ┌→ B ─┐
-A ─────┼→ C ─┼→ D
-       └→ E ─┘
+        ┌→ A (load profile) ─┐
+userId ─┼→ B (load orders)  ─┼→ D (build dashboard)
+        └→ C (load tickets) ─┘
 ```
 
-(relabeling: A/B/C load independently, D — the join — is what was "E" in
-the generic diagram above)
+Notice what changed: A, B, and C no longer point *into each other* — they
+all point *out from* the one thing they actually need (`userId`), and only
+D points *in from* all three. Nothing was added or removed, only the
+direction and shape of the arrows, to match what each step actually reads.
 
 ## How does it work?
 
@@ -66,6 +68,21 @@ change what the graph computes, only how much time it wastes waiting on
 edges that were never real.
 
 ## How do I run it?
+
+This is the first command in the whole curriculum — if you haven't opened a
+terminal before, here's exactly how:
+
+- **Windows:** open the Start menu, type `PowerShell` or `Terminal`, press
+  Enter.
+- **macOS:** open Spotlight (Cmd+Space), type `Terminal`, press Enter.
+- **VS Code / most code editors:** use the built-in terminal panel (usually
+  View → Terminal, or `` Ctrl+` ``) — it opens already inside your project.
+
+Then, in that terminal, navigate to wherever you downloaded or cloned this
+repo (e.g. `cd Downloads/agent-graph-starter` — adjust the path to match
+where it actually is on your machine) so you're standing at the repo's root
+folder before running the commands below. Every command in this curriculum
+assumes you're starting from the repo root unless it says otherwise.
 
 ```bash
 cd curriculum/04-dependency-analysis

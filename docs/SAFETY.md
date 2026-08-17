@@ -3,7 +3,7 @@
 ## Cost
 
 - Every subagent is a separate model session. **Tokens multiply.**
-- Claude Code dynamic workflows: up to **16 concurrent**, **1000 total** per run — do not aim at the ceiling on day one.
+- Claude Code dynamic workflows: up to **16 concurrent**, **1000 total** per run as of this writing — do not aim at the ceiling on day one, and check Claude Code's own current docs if this matters to you, since platform limits change over time and this repo won't stay in sync with them.
 - Start with this 3-node graph. Watch `/cost` or your plan usage.
 - Prefer smaller models for Writer/Verifier when the platform allows; keep Gate as a script (almost free).
 

@@ -4,7 +4,9 @@
 
 **What is happening?** You're about to run the real graph every earlier
 lesson was pointing at: Writer → Verifier → Gate, for real, on your machine,
-using Claude Code subagents.
+using Claude Code **subagents** — Claude Code's name for an agent (lesson
+01) spawned to do one scoped job with its own instructions and tools, as a
+child of your main session. Writer and Verifier are each a subagent here.
 
 **Why is it designed this way?** Because lessons 01–16 already explained
 every individual piece — this lesson doesn't introduce anything new

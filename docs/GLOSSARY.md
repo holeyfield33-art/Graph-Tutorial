@@ -27,6 +27,15 @@ exit code). See [`curriculum/03-nodes-and-edges/`](../curriculum/03-nodes-and-ed
 an opinion — a file's actual content, a command's actual exit code. The
 opposite of "looks good."
 
+**Exit code** — the number a program reports when it finishes, read by
+whatever ran it to decide what happened. `0` conventionally means success;
+any other number means some kind of failure — this repo's Gate uses `0` for
+PASS, `1` for BLOCK, `2` for FREEZE (see
+[`curriculum/14-verification-and-gates/`](../curriculum/14-verification-and-gates/README.md)).
+After running a command, you can check the exit code of the last command
+with `echo $?` (macOS/Linux/Git Bash) or `echo $LASTEXITCODE` (Windows
+PowerShell).
+
 **Failure state** — a specific, named way a node did not cleanly succeed
 (`not_found`, `invalid`, `timeout`, `partial`, `needs_review`, ...), routed
 on individually instead of collapsed into one generic error. See
@@ -53,9 +62,11 @@ is a guardrail enforced in code, not just instructions.
 entire in-progress conversation to another agent. See
 [`docs/PLATFORM-COMPARISON.md`](./PLATFORM-COMPARISON.md).
 
-**Human-in-the-loop** — a point in the graph where a real person must approve
-before anything proceeds (e.g. before a PASS actually ships to production).
-See [`docs/SAFETY.md`](./SAFETY.md).
+**Human-in-the-loop** (also called **human approval**) — a point in the
+graph where a real person must approve before anything proceeds (e.g.
+before a PASS actually ships to production). See
+[`docs/SAFETY.md`](./SAFETY.md) and
+[`curriculum/14-verification-and-gates/`](../curriculum/14-verification-and-gates/README.md).
 
 **Idempotency** — the property that running a step twice has the same
 effect as running it once. What makes it safe for a resumed run to

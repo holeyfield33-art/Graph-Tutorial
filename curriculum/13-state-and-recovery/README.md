@@ -83,11 +83,14 @@ already done — nothing re-executes, and nothing gets published twice.
 
 ## What happens if it fails?
 
-Open `example.js` and comment out the `if (stepDone(state, 'publish'))`
-check so `publish()` always runs unconditionally. Run the full sequence
-again (`--reset`, then two plain runs). You'll see `[publish] publishing...`
-print on **both** runs — a duplicate side effect, exactly the failure mode
-idempotency and state checkpointing exist to prevent. Undo the change
+Open `example.js` and find the line `if (stepDone(state, 'publish')) {`.
+Change just the condition to `if (false) {` (leave the rest of the
+if/else block exactly as it is — this is a one-word edit, not a rewrite)
+so `publish()` always runs unconditionally, ignoring the checkpoint. Run
+the full sequence again (`--reset`, then two plain runs). You'll see
+`[publish] publishing...` print on **both** runs — a duplicate side effect,
+exactly the failure mode idempotency and state checkpointing exist to
+prevent. Change `if (false)` back to `if (stepDone(state, 'publish'))`
 before moving on.
 
 ## What should I experiment with?
