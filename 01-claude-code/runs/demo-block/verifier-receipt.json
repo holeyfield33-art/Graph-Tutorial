@@ -7,12 +7,12 @@
     {
       "name": "files_exist",
       "result": "PASS",
-      "detail": "workspace/hello.js and workspace/hello.test.js are both present"
+      "detail": "read workspace/hello.js and workspace/hello.test.js from disk; both present and non-empty"
     },
     {
       "name": "test_actually_checks_output",
       "result": "FAIL",
-      "detail": "hello.test.js calls hello('World') but never asserts the result contains 'World' — the test would pass even if hello() returned the wrong value"
+      "detail": "workspace/hello.test.js calls hello('World') but never asserts the result contains 'World' — the test would pass even if hello() returned the wrong value"
     }
   ],
   "failures": [

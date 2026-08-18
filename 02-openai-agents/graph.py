@@ -55,8 +55,19 @@ except ImportError:
 import receipts
 
 HERE = Path(__file__).resolve().parent
-WORKSPACE = HERE / "workspace"
 GATE_SCRIPT = HERE.parent / "01-claude-code" / "scripts" / "gate.js"
+
+# The active run's workspace. Each run gets its OWN workspace under
+# runs/<run_id>/workspace/, so a run is self-contained and the gate can verify
+# every claimed file relative to the run directory (see scripts/gate.js). This
+# is set once per run by run_graph(); the tools below resolve against it.
+_ACTIVE_WORKSPACE: Path | None = None
+
+
+def _workspace() -> Path:
+    if _ACTIVE_WORKSPACE is None:
+        raise RuntimeError("no active workspace — run_graph() must set one first")
+    return _ACTIVE_WORKSPACE
 
 
 # ---------------------------------------------------------------------------
@@ -92,8 +103,9 @@ class VerifierOutput(BaseModel):
 # ---------------------------------------------------------------------------
 
 def _safe_workspace_path(relative_path: str) -> Path:
-    target = (WORKSPACE / relative_path).resolve()
-    if WORKSPACE.resolve() not in target.parents and target != WORKSPACE.resolve():
+    workspace = _workspace()
+    target = (workspace / relative_path).resolve()
+    if workspace.resolve() not in target.parents and target != workspace.resolve():
         raise ValueError(f"refusing to write outside workspace/: {relative_path}")
     return target
 
@@ -122,11 +134,12 @@ def read_workspace_file(relative_path: str) -> str:
 @function_tool
 def list_workspace_files() -> list[str]:
     """List every file that currently exists under workspace/."""
-    if not WORKSPACE.exists():
+    workspace = _workspace()
+    if not workspace.exists():
         return []
     return sorted(
-        str(p.relative_to(WORKSPACE)).replace("\\", "/")
-        for p in WORKSPACE.rglob("*")
+        str(p.relative_to(workspace)).replace("\\", "/")
+        for p in workspace.rglob("*")
         if p.is_file()
     )
 
@@ -190,7 +203,12 @@ DEFAULT_TASK = (
 
 
 async def run_graph(task: str, run_id: str) -> int:
+    global _ACTIVE_WORKSPACE
     run_dir = HERE / "runs" / run_id
+    # Each run owns its workspace, so the gate can verify files relative to the
+    # run directory and two runs never collide over one shared folder.
+    _ACTIVE_WORKSPACE = run_dir / "workspace"
+    _ACTIVE_WORKSPACE.mkdir(parents=True, exist_ok=True)
     writer, verifier = build_agents()
 
     print(f"[graph] run_id={run_id}")

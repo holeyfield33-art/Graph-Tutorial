@@ -1,5 +1,9 @@
 # 14 — Verification and gates
 
+> **▶ See it live:** the [interactive Release Gate Playground](https://claude.ai/code/artifact/04895bfa-9e31-4d46-bf92-9ddd1e823ab5)
+> lets you step a run through Writer → Verifier → Gate and watch the ordered
+> checks decide PASS / BLOCK / FREEZE. This lesson is the "why" behind it.
+
 ## What am I learning?
 
 Three distinct roles that are easy to blur into one: the thing that

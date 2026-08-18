@@ -1,11 +1,12 @@
 {
   "agent": "gate",
   "status": "PASS",
-  "reason": "receipts valid and verifier PASS",
-  "timestamp": "2026-08-16T09:56:01.266Z",
-  "writer_summary": "Added workspace/hello.js and a minimal test file.",
+  "reason": "receipts valid, claimed files exist, verifier PASS",
+  "timestamp": "2026-08-17T22:56:59.091Z",
+  "writer_summary": "Added workspace/hello.js and a real test that asserts on the return value.",
   "files_touched": [
     "workspace/hello.js",
     "workspace/hello.test.js"
-  ]
+  ],
+  "files_verified": 2
 }

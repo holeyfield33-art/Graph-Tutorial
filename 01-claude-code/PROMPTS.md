@@ -26,10 +26,11 @@ Run the starter agent graph for a new run.
 1) Create run_id = demo-<YYYYMMDD-HHMMSS> and folder runs/<run_id>/
 
 2) Spawn the **writer** subagent with this task:
-   - Create workspace/hello.js that exports a function hello(name) returning `Hello, ${name}!`
-   - Create workspace/hello.test.js that checks hello("World") includes "World"
+   - Create runs/<run_id>/workspace/hello.js that exports a function hello(name) returning `Hello, ${name}!`
+   - Create runs/<run_id>/workspace/hello.test.js that checks hello("World") includes "World"
    - Write runs/<run_id>/writer-receipt.json per the writer agent instructions
-   - Only touch files under workspace/ and runs/<run_id>/
+     (files_touched relative to the run folder, e.g. "workspace/hello.js")
+   - Only touch files under runs/<run_id>/
 
 3) After writer returns, spawn the **verifier** subagent:
    - Independently check the writer receipt and files
@@ -55,15 +56,17 @@ last few lines should look like this (your `run_id` and `timestamp` will differ)
 {
   "agent": "gate",
   "status": "PASS",
-  "reason": "receipts valid and verifier PASS",
+  "reason": "receipts valid, claimed files exist, verifier PASS",
   "writer_summary": "Added workspace/hello.js and a minimal test file.",
-  "files_touched": ["workspace/hello.js", "workspace/hello.test.js"]
+  "files_touched": ["workspace/hello.js", "workspace/hello.test.js"],
+  "files_verified": 2
 }
 ```
 
 **What this means:** the Writer built the file, the Verifier independently checked it and
-found no problems, and the Gate — a plain script, not an LLM — agreed the receipts were
-valid. `PASS` here means "the graph's own checks passed," not "this is production code."
+found no problems, and the Gate — a plain script, not an LLM — re-confirmed on disk that
+every claimed file really exists before agreeing. `PASS` here means "the graph's own checks
+passed," not "this is production code."
 See [`docs/SAFETY.md`](../docs/SAFETY.md).
 
 If you see `BLOCK` instead, the Verifier found a real problem — read
@@ -114,10 +117,12 @@ node scripts/gate.js runs/demo-freeze
 ## Prompt C — force BLOCK (learning)
 
 ```text
-Create runs/learn-block/ and write a writer-receipt.json with status PASS
-touching only workspace/ files. Write a verifier-receipt.json with status
-FAIL and one concrete failure in the "failures" array (invent a real-sounding
-problem, e.g. a test that never asserts anything). Then run:
+Create runs/learn-block/workspace/hello.js with any small real content (the
+gate now verifies claimed files exist, so it must be a real file). Then write
+runs/learn-block/writer-receipt.json with status PASS and files_touched
+["workspace/hello.js"]. Write runs/learn-block/verifier-receipt.json with
+status FAIL and one concrete failure in the "failures" array (invent a
+real-sounding problem, e.g. a test that never asserts anything). Then run:
 
 node scripts/gate.js runs/learn-block
 
